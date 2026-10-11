@@ -1,0 +1,173 @@
+Metadata-Version: 2.4
+Name: chronosmatch
+Version: 0.1.0
+Summary: ChronosMatch educational trading-engine prototype
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# ChronosMatch ⚡
+### Zero-Copy High-Frequency Trading Engine
+
+ChronosMatch is a low-latency trading engine project exploring zero-copy inter-process communication (IPC), memory-mapped ring buffers, Cython-based order matching, and real-time performance monitoring.
+
+The goal is to build a simulated electronic trading system that processes market orders efficiently while measuring throughput and execution latency.
+
+> **Project status:** Initial project structure. Features are under development; performance targets are goals, not yet verified results.
+
+## Objectives
+
+- Build a shared-memory communication bus using Python's `mmap` and `struct` modules.
+- Simulate high-volume market order traffic using `asyncio`.
+- Implement a limit order book with price-time priority.
+- Use Cython and C-level data structures to explore low-latency matching.
+- Measure order-processing latency and throughput.
+- Display market activity and execution metrics in a terminal dashboard.
+- Persist executed trades using SQLite.
+
+## Planned Architecture
+
+```text
+Market Simulator (asyncio)
+          |
+          v
+Binary Order Protocol
+          |
+          v
+Memory-Mapped Ring Buffer
+          |
+          v
+Matching Engine (Cython)
+          |
+          +------> Latency & Throughput Metrics
+          |
+          +------> Terminal Dashboard
+          |
+          +------> SQLite Trade Ledger
+```
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Python | Core application and simulation |
+| `mmap` and `struct` | Memory-mapped IPC and binary order encoding |
+| `asyncio` | Asynchronous market simulation |
+| Cython | Compiled matching-engine components |
+| C structs and pointers | Exploring reduced Python-object overhead |
+| `time.perf_counter_ns()` | High-resolution elapsed-time measurement |
+| SQLite | Trade persistence |
+| `curses` | Terminal monitoring interface |
+| `pytest` | Automated testing |
+
+**Platform note:** Development is currently targeted at Windows. Compiler setup and terminal-dashboard compatibility will be validated as implementation progresses.
+
+## Repository Structure
+
+```text
+ChronosMatch/
+├── src/chronosmatch/
+│   ├── ipc/          # Binary protocol and shared-memory ring buffer
+│   ├── engine/       # Order book and matching engine
+│   ├── simulator/    # Market-data and order simulation
+│   ├── metrics/      # Latency and throughput measurement
+│   ├── dashboard/    # Terminal monitoring
+│   └── storage/      # Trade persistence
+├── scripts/          # Application entry points
+├── tests/            # Automated tests
+├── benchmarks/       # IPC and matching benchmarks
+├── docs/             # Architecture and technical documentation
+└── data/             # Local project data
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.11 or later, subject to dependency compatibility.
+- Git.
+- A compatible C/C++ compiler for building Cython extensions.
+- Windows, Linux, or another supported development environment, depending on component compatibility.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/alisha5857/ChronosMatch.git
+cd ChronosMatch
+```
+
+### 2. Create a virtual environment
+
+**Windows CMD:**
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Linux/macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install development dependencies
+
+Once the dependency files are configured:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+```
+
+### 4. Build and test
+
+The project supports a pure-Python fallback when a native C/C++ toolchain is not available for the optional Cython extension. On machines without MSVC (for example some Windows setups), installation still succeeds and the engine falls back to the Python implementation in `chronosmatch.engine.matching_core`.
+
+```bash
+python -m pip install -e .
+python -m pytest
+```
+
+## Performance Goals
+
+The project will evaluate:
+
+- Order-processing latency in microseconds.
+- Median (p50), p95, and p99 latency.
+- Orders processed per second.
+- IPC throughput across processes.
+- Matching correctness under different order loads.
+
+The initial target is to investigate matching latency below **50 microseconds** under a defined benchmark workload. This is a target, not a measured result or a guarantee of end-to-end execution latency.
+
+Benchmark reports should document the machine, operating system, workload, measurement method, and test results.
+
+## Development Roadmap
+
+- [ ] **Week 1:** Define the binary order protocol and implement the memory-mapped ring buffer.
+- [ ] **Week 1:** Build an asynchronous order generator and test IPC communication.
+- [ ] **Week 2:** Implement the limit order book and price-time-priority matching.
+- [ ] **Week 2:** Integrate the Cython matching core and terminal dashboard.
+- [ ] **Week 3:** Benchmark latency and throughput; optimize the critical path.
+- [ ] **Week 4:** Add trade persistence and improve monitoring.
+- [ ] **Final validation:** Test matching correctness, IPC reliability, and performance under documented workloads.
+
+## Engineering Principles
+
+- Keep the producer and consumer binary protocol consistent.
+- Validate correctness before optimizing performance.
+- Separate monitoring and persistence from the latency-critical path where practical.
+- Measure actual performance rather than assuming that shared memory or Cython automatically guarantees low latency.
+- Keep secrets, credentials, virtual environments, and generated build artifacts out of version control.
+
+## Disclaimer
+
+ChronosMatch is an educational systems-engineering project using simulated market data. It is not connected to a live exchange and is not intended for live financial trading.
+
+## License
+
+See the `LICENSE` file for the project's licensing terms.
